@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 require('dotenv').config();
+=======
+require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
+>>>>>>> 7ca294292ab2b6f10d38a78c832f17346135d29d
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
