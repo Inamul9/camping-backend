@@ -98,18 +98,30 @@ app.post('/api/seed-force', authenticateToken, async (req, res) => {
   }
 });
 
+let lastDbError = null;
+
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGODB_URI, {
       serverSelectionTimeoutMS: 5000
     });
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+    lastDbError = null;
   } catch (err) {
+    lastDbError = err.message;
     console.error('❌ MongoDB connection failed:', err.message);
     console.log('⚠️  CRITICAL: Database not connected. Administrative updates will NOT be saved.');
   }
 };
 connectDB();
+
+app.get('/api/db-status', (req, res) => {
+  res.json({ 
+    connected: mongoose.connection.readyState === 1,
+    status: mongoose.connection.readyState,
+    error: lastDbError
+  });
+});
 
 // ── Schemas & Models ───────────────────────────────────────────────────────────
 const ContentSchema = new mongoose.Schema({
