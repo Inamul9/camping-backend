@@ -681,8 +681,55 @@ const ContentSchema = new mongoose.Schema({
     {
       title: "Solang Valley Riverside Retreat",
       category: "riverside",
-      await Category.insertMany(defaultCategories);
-      await Camp.insertMany(defaultCamps);
+      price: 2500,
+      rating: 4.8,
+      reviews: 124,
+      image: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&q=80",
+      location: "Solang Valley, Manali",
+      description: "Experience the magic of the Beas river right at your doorstep. Premium Swiss tents with attached baths.",
+      features: ["River View", "Bonfire", "Attached Bath", "Breakfast Included"],
+      available: true,
+      featured: true
+    },
+    {
+      title: "Hampta Pass Base Camp",
+      category: "adventure",
+      price: 1800,
+      rating: 4.9,
+      reviews: 86,
+      image: "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&q=80",
+      location: "Sethan Village, Manali",
+      description: "For the true adventurers. Located at the start of the Hampta Pass trek. Stunning views of Kullu Valley.",
+      features: ["Trekking Support", "Alpine Tents", "Local Food", "Snow Views"],
+      available: true,
+      featured: true
+    },
+    {
+      title: "Luxury Glamping Dome",
+      category: "luxury",
+      price: 5500,
+      rating: 5.0,
+      reviews: 42,
+      image: "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&q=80",
+      location: "Naggar, Manali",
+      description: "The ultimate glamping experience. Geodesic domes with transparent ceilings for stargazing.",
+      features: ["Stargazing", "Heated Tents", "Gourmet Meals", "WiFi"],
+      available: true,
+      featured: true
+    }
+  ];
+
+  app.post('/api/seed-force', authenticateToken, async (req, res) => {
+    try {
+      if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'DB not connected' });
+      
+      await Camp.deleteMany({});
+      await Blog.deleteMany({});
+      await Category.deleteMany({});
+      
+      await Category.insertMany(manaliCategories);
+      await Camp.insertMany(manaliCamps);
+      // We use defaultBlogs defined at the top
       await Blog.insertMany(defaultBlogs);
       
       res.json({ message: 'Database successfully seeded with Manali adventures! 🚀' });
