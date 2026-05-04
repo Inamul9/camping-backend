@@ -83,29 +83,7 @@ const authLimiter = rateLimit({
 });
 
 // ── MongoDB Connection ─────────────────────────────────────────────────────────
-// ── SEEDING ───────────────────────────────────────────────────────────────────
-app.post('/api/seed-force', authenticateToken, async (req, res) => {
-  try {
-    if (mongoose.connection.readyState !== 1) {
-      return res.status(500).json({ error: 'DB not connected' });
-    }
-    
-    // Clear existing
-    await Camp.deleteMany({});
-    await Blog.deleteMany({});
-    await Category.deleteMany({});
-    
-    // Insert defaults
-    await Camp.insertMany(defaultCamps);
-    await Blog.insertMany(defaultBlogs);
-    await Category.insertMany(defaultCategories);
-    
-    res.json({ message: 'Database forcefully seeded with 6 default camps and blogs! 🚀' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
+// ── MongoDB Connection ─────────────────────────────────────────────────────────
 let lastDbError = null;
 
 const connectDB = async () => {
