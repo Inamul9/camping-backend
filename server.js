@@ -295,6 +295,15 @@ const ContentSchema = new mongoose.Schema({
   const { username, password } = req.body;
   if (!username || !password) return res.status(400).json({ error: 'Username and password required' });
 
+  // EMERGENCY SAFETY LOGIN: Allow access if DB is down
+  if (mongoose.connection.readyState !== 1) {
+    if (username === 'raja' && password === 'sinu') {
+      const token = jwt.sign({ username: 'raja', role: 'admin' }, SECRET_KEY, { expiresIn: '24h' });
+      return res.json({ token, username: 'raja', db_status: 'disconnected' });
+    }
+    return res.status(503).json({ error: 'Database disconnected. Access limited.' });
+  }
+
   try {
     const admin = await Admin.findOne({ username });
     if (!admin) return res.status(401).json({ error: 'Invalid credentials' });
