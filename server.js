@@ -100,11 +100,13 @@ app.post('/api/seed-force', authenticateToken, async (req, res) => {
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI);
+    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000
+    });
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
   } catch (err) {
     console.error('❌ MongoDB connection failed:', err.message);
-    console.log('⚠️  The server will continue but API endpoints requiring DB will fail.');
+    console.log('⚠️  CRITICAL: Database not connected. Administrative updates will NOT be saved.');
   }
 };
 connectDB();
@@ -293,13 +295,6 @@ const ContentSchema = new mongoose.Schema({
   const { username, password } = req.body;
   if (!username || !password) return res.status(400).json({ error: 'Username and password required' });
 
-  // FALLBACK: If DB is not connected, allow login with raja / sinu
-  if (mongoose.connection.readyState !== 1) {
-    if (username === 'raja' && password === 'sinu') {
-       const token = jwt.sign({ username: 'raja', role: 'admin' }, SECRET_KEY, { expiresIn: '24h' });
-       return res.json({ token, username: 'raja', mock: true });
-    }
-    return res.status(401).json({ error: 'Invalid credentials (Mock Mode)' });
   }
 
   try {
@@ -328,9 +323,7 @@ const ContentSchema = new mongoose.Schema({
   // ── CONTENT ───────────────────────────────────────────────────────────────────
   app.get('/api/content', async (req, res) => {
     try {
-      if (mongoose.connection.readyState !== 1) {
-        return res.json(defaultContent);
-      }
+      if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database disconnected' });
       const content = await Content.find();
       res.json(content);
     } catch (err) {
@@ -343,11 +336,11 @@ const ContentSchema = new mongoose.Schema({
     if (!key) return res.status(400).json({ error: 'Key is required' });
     try {
       if (mongoose.connection.readyState !== 1) {
-        return res.json({ key, value, _id: 'mock-content-' + Date.now() });
+        return res.status(503).json({ error: 'Database not connected. Cannot save changes.' });
       }
       const updated = await Content.findOneAndUpdate({ key }, { value }, { upsert: true, new: true });
       res.json(updated);
-    } catch (err) {
+    } catch (err: any) {
       res.status(500).json({ error: err.message });
     }
   });
@@ -355,11 +348,7 @@ const ContentSchema = new mongoose.Schema({
   // ── CAMPS ─────────────────────────────────────────────────────────────────────
   app.get('/api/camps', async (req, res) => {
   try {
-    // FALLBACK: If DB is not connected, use default mock data
-    if (mongoose.connection.readyState !== 1) {
-      console.log('📡 [Mock Mode] Serving default camps');
-      return res.json(defaultCamps);
-    }
+    if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database disconnected' });
 
     const { category, search, featured, sort, limit } = req.query;
     let query = { available: true };
@@ -384,10 +373,7 @@ const ContentSchema = new mongoose.Schema({
 
   app.get('/api/camps/:slug', async (req, res) => {
     try {
-      if (mongoose.connection.readyState !== 1) {
-        const camp = defaultCamps.find(c => c.slug === req.params.slug);
-        return camp ? res.json(camp) : res.status(404).json({ error: 'Camp not found' });
-      }
+      if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database disconnected' });
       const camp = await Camp.findOne({ slug: req.params.slug });
       if (!camp) return res.status(404).json({ error: 'Camp not found' });
       res.json(camp);
@@ -398,9 +384,7 @@ const ContentSchema = new mongoose.Schema({
 
   app.post('/api/camps', authenticateToken, async (req, res) => {
     try {
-      if (mongoose.connection.readyState !== 1) {
-        return res.status(201).json({ ...req.body, _id: 'mock-camp-' + Date.now(), slug: toSlug(req.body.title) + '-' + Date.now() });
-      }
+      if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database disconnected' });
       const slug = toSlug(req.body.title) + '-' + Date.now();
       const camp = new Camp({ ...req.body, slug });
       await camp.save();
@@ -412,9 +396,7 @@ const ContentSchema = new mongoose.Schema({
 
   app.patch('/api/camps/:id', authenticateToken, async (req, res) => {
     try {
-      if (mongoose.connection.readyState !== 1) {
-        return res.json({ ...req.body, _id: req.params.id });
-      }
+      if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database disconnected' });
       const updated = await Camp.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
       if (!updated) return res.status(404).json({ error: 'Camp not found' });
       res.json(updated);
@@ -425,9 +407,7 @@ const ContentSchema = new mongoose.Schema({
 
   app.delete('/api/camps/:id', authenticateToken, async (req, res) => {
     try {
-      if (mongoose.connection.readyState !== 1) {
-        return res.json({ message: 'Camp deleted (Mock Mode)' });
-      }
+      if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database disconnected' });
       await Camp.findByIdAndDelete(req.params.id);
       res.json({ message: 'Camp deleted' });
     } catch (err) {
@@ -438,9 +418,7 @@ const ContentSchema = new mongoose.Schema({
   // ── CATEGORIES ────────────────────────────────────────────────────────────────
   app.get('/api/categories', async (req, res) => {
   try {
-    if (mongoose.connection.readyState !== 1) {
-      return res.json(defaultCategories);
-    }
+    if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database disconnected' });
     const categories = await Category.find().sort({ order: 1 });
     res.json(categories);
   } catch (err) {
@@ -450,9 +428,7 @@ const ContentSchema = new mongoose.Schema({
 
   app.post('/api/categories', authenticateToken, async (req, res) => {
     try {
-      if (mongoose.connection.readyState !== 1) {
-        return res.status(201).json({ ...req.body, _id: 'mock-cat-' + Date.now() });
-      }
+      if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database disconnected' });
       const slug = toSlug(req.body.name);
       const cat = new Category({ ...req.body, slug });
       await cat.save();
@@ -464,9 +440,7 @@ const ContentSchema = new mongoose.Schema({
 
   app.patch('/api/categories/:id', authenticateToken, async (req, res) => {
     try {
-      if (mongoose.connection.readyState !== 1) {
-        return res.json({ ...req.body, _id: req.params.id });
-      }
+      if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database disconnected' });
       const updated = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
       res.json(updated);
     } catch (err) {
@@ -476,9 +450,7 @@ const ContentSchema = new mongoose.Schema({
 
   app.delete('/api/categories/:id', authenticateToken, async (req, res) => {
     try {
-      if (mongoose.connection.readyState !== 1) {
-        return res.json({ message: 'Category deleted (Mock Mode)' });
-      }
+      if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database disconnected' });
       await Category.findByIdAndDelete(req.params.id);
       res.json({ message: 'Category deleted' });
     } catch (err) {
@@ -493,9 +465,7 @@ const ContentSchema = new mongoose.Schema({
       return res.status(400).json({ error: 'Name, email and tent are required' });
     }
     try {
-      if (mongoose.connection.readyState !== 1) {
-        return res.status(201).json({ message: 'Booking submitted successfully (Mock Mode)', id: 'mock-id' });
-      }
+      if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database disconnected' });
       const newBooking = new Booking(req.body);
       await newBooking.save();
       res.status(201).json({ message: 'Booking submitted successfully', id: newBooking._id });
@@ -506,9 +476,7 @@ const ContentSchema = new mongoose.Schema({
 
   app.get('/api/bookings', authenticateToken, async (req, res) => {
     try {
-      if (mongoose.connection.readyState !== 1) {
-        return res.json(defaultBookings);
-      }
+      if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database disconnected' });
       const bookings = await Booking.find().sort({ createdAt: -1 });
       res.json(bookings);
     } catch (err) {
@@ -518,9 +486,7 @@ const ContentSchema = new mongoose.Schema({
 
   app.patch('/api/bookings/:id', authenticateToken, async (req, res) => {
     try {
-      if (mongoose.connection.readyState !== 1) {
-        return res.json({ ...req.body, _id: req.params.id });
-      }
+      if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database disconnected' });
       const updated = await Booking.findByIdAndUpdate(req.params.id, req.body, { new: true });
       if (!updated) return res.status(404).json({ error: 'Booking not found' });
       res.json(updated);
@@ -531,9 +497,7 @@ const ContentSchema = new mongoose.Schema({
 
   app.delete('/api/bookings/:id', authenticateToken, async (req, res) => {
     try {
-      if (mongoose.connection.readyState !== 1) {
-        return res.json({ message: 'Deleted (Mock Mode)' });
-      }
+      if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database disconnected' });
       await Booking.findByIdAndDelete(req.params.id);
       res.json({ message: 'Deleted' });
     } catch (err) {
@@ -544,9 +508,7 @@ const ContentSchema = new mongoose.Schema({
   // ── BLOGS ─────────────────────────────────────────────────────────────────────
   app.get('/api/blogs', async (req, res) => {
     try {
-      if (mongoose.connection.readyState !== 1) {
-        return res.json(defaultBlogs);
-      }
+      if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database disconnected' });
       const query = req.query.all === 'true' ? {} : { published: true };
       const blogs = await Blog.find(query).sort({ createdAt: -1 });
       res.json(blogs);
@@ -557,10 +519,7 @@ const ContentSchema = new mongoose.Schema({
 
   app.get('/api/blogs/:slug', async (req, res) => {
     try {
-      if (mongoose.connection.readyState !== 1) {
-        const blog = defaultBlogs.find(b => b.slug === req.params.slug);
-        return blog ? res.json(blog) : res.status(404).json({ error: 'Blog not found' });
-      }
+      if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database disconnected' });
       const blog = await Blog.findOne({ slug: req.params.slug });
       if (!blog) return res.status(404).json({ error: 'Blog not found' });
       blog.views += 1;
@@ -573,9 +532,7 @@ const ContentSchema = new mongoose.Schema({
 
   app.post('/api/blogs', authenticateToken, async (req, res) => {
     try {
-      if (mongoose.connection.readyState !== 1) {
-        return res.status(201).json({ ...req.body, _id: 'mock-blog-' + Date.now() });
-      }
+      if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database disconnected' });
       const slug = toSlug(req.body.title) + '-' + Date.now();
       const blog = new Blog({ ...req.body, slug });
       await blog.save();
@@ -587,9 +544,7 @@ const ContentSchema = new mongoose.Schema({
 
   app.patch('/api/blogs/:id', authenticateToken, async (req, res) => {
     try {
-      if (mongoose.connection.readyState !== 1) {
-        return res.json({ ...req.body, _id: req.params.id });
-      }
+      if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database disconnected' });
       const updated = await Blog.findByIdAndUpdate(req.params.id, { ...req.body, updatedAt: new Date() }, { new: true });
       res.json(updated);
     } catch (err) {
