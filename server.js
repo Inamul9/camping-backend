@@ -295,7 +295,6 @@ const ContentSchema = new mongoose.Schema({
   const { username, password } = req.body;
   if (!username || !password) return res.status(400).json({ error: 'Username and password required' });
 
-
   try {
     const admin = await Admin.findOne({ username });
     if (!admin) return res.status(401).json({ error: 'Invalid credentials' });
@@ -339,7 +338,7 @@ const ContentSchema = new mongoose.Schema({
       }
       const updated = await Content.findOneAndUpdate({ key }, { value }, { upsert: true, new: true });
       res.json(updated);
-    } catch (err: any) {
+    } catch (err) {
       res.status(500).json({ error: err.message });
     }
   });
