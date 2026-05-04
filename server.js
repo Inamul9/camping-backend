@@ -437,7 +437,14 @@ app.get('/api/camps', async (req, res) => {
 app.get('/api/camps/:slug', async (req, res) => {
   try {
     if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database disconnected' });
-    const camp = await Camp.findOne({ slug: req.params.slug });
+    
+    // Try finding by slug first, then by ID as fallback
+    let camp = await Camp.findOne({ slug: req.params.slug });
+    
+    if (!camp && mongoose.Types.ObjectId.isValid(req.params.slug)) {
+      camp = await Camp.findById(req.params.slug);
+    }
+
     if (!camp) return res.status(404).json({ error: 'Camp not found' });
     res.json(camp);
   } catch (err) {
