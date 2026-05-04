@@ -200,43 +200,97 @@ const ContentSchema = new mongoose.Schema({
   const Admin = mongoose.model('Admin', AdminSchema);
 
   // ── Seed default data ─────────────────────────────────────────────────────────
-  const defaultCamps = [
-    { _id: 'm1', title: 'Vango Kibale 350 Tent', slug: 'vango-kibale-350-tent', price: 150, category: 'classic-tent', image: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=800&q=80', shortDesc: 'Perfect for festivals and weekend trips', description: 'The Vango Kibale 350 is an easy-to-use beginner tent, featuring a simple pop-up design that sets up in seconds. Perfect for festivals and weekend trips with friends or family.', services: ['bbq', 'camp-fire', 'free-coffee', 'safe-tent'], capacity: 3, rating: 4.3, reviews: 28, featured: true },
-    { _id: 'm2', title: 'Vango Beta 450XL Tent', slug: 'vango-beta-450xl-tent', price: 80, category: 'classic-tent', image: 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=800&q=80', shortDesc: 'Spacious 4-person tunnel tent', description: 'The Vango Beta 450XL is a 4-person tunnel tent with a large porch area, ideal for longer camping trips where extra space is needed.', services: ['bbq', 'camp-fire', 'free-coffee', 'safe-tent'], capacity: 4, rating: 4.5, reviews: 42, featured: true },
-    { _id: 'm3', title: 'Coleman Dark Room Tent', slug: 'coleman-dark-room-tent', price: 200, category: 'luxury-tent', image: 'https://images.unsplash.com/photo-1537225228614-56cc3556d7ed?w=800&q=80', shortDesc: 'Blocks 90% of sunlight for premium sleep', description: 'Block 90% of sunlight so you can sleep in past sunrise. The Dark Room technology also reduces heat for a more comfortable night\'s sleep in ultimate luxury.', services: ['bbq', 'wifi', 'free-coffee', 'safe-tent'], capacity: 4, rating: 4.7, reviews: 65, featured: true },
-    { _id: 'm4', title: 'Ozark Trail Hazel Creek', slug: 'ozark-trail-hazel-creek', price: 250, category: 'luxury-tent', image: 'https://images.unsplash.com/photo-1496080174650-637e3f22fa03?w=800&q=80', shortDesc: 'Massive 12-person cabin tent', description: 'A massive 12-person cabin tent that feels like a house. Perfect for large families or groups wanting maximum comfort in the outdoors.', services: ['bbq', 'camp-fire', 'wifi', 'private-shower'], capacity: 12, rating: 4.8, reviews: 91, featured: false },
-    { _id: 'm5', title: 'MSR Hubba Hubba NX', slug: 'msr-hubba-hubba', price: 300, category: 'ultralight-tent', image: 'https://images.unsplash.com/photo-1567303716578-6e6e09d48e3b?w=800&q=80', shortDesc: 'Gold standard lightweight backpacking tent', description: 'The gold standard for lightweight backpacking. This 2-person tent offers maximum internal space and durability at a very low weight.', services: ['safe-tent', 'free-coffee'], capacity: 2, rating: 4.9, reviews: 113, featured: true },
-    { _id: 'm6', title: 'Glamping Dome Suite', slug: 'glamping-dome-suite', price: 400, category: 'glamping', image: 'https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?w=800&q=80', shortDesc: 'Luxury geodesic dome with full amenities', description: 'Experience the ultimate glamping adventure in our stunning geodesic dome. Features a king bed, en-suite bathroom, private deck, and panoramic forest views.', services: ['bbq', 'wifi', 'free-coffee', 'private-shower', 'camp-fire'], capacity: 2, rating: 5.0, reviews: 47, featured: true },
-  ];
-
   const defaultCategories = [
-    { _id: 'cat1', name: 'Classic Tent', slug: 'classic-tent', description: 'Traditional camping tents for the outdoor enthusiast', image: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=600&q=80', icon: '⛺', order: 1 },
-    { _id: 'cat2', name: 'Luxury Tent', slug: 'luxury-tent', description: 'Premium tents with top-tier amenities', image: 'https://images.unsplash.com/photo-1537225228614-56cc3556d7ed?w=800&q=80', icon: '🏕️', order: 2 },
-    { _id: 'cat3', name: 'Ultralight Tent', slug: 'ultralight-tent', description: 'Lightweight tents for serious backpackers', image: 'https://images.unsplash.com/photo-1567303716578-6e6e09d48e3b?w=800&q=80', icon: '🎒', order: 3 },
-    { _id: 'cat4', name: 'Glamping', slug: 'glamping', description: 'Glamorous camping with all the comforts of home', image: 'https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?w=800&q=80', icon: '✨', order: 4 },
+    { name: 'Luxury', slug: 'luxury', description: 'Premium camping with modern amenities', icon: 'Sparkles', count: 12 },
+    { name: 'Adventure', slug: 'adventure', description: 'High-altitude thrills and exploration', icon: 'Mountain', count: 8 },
+    { name: 'Riverside', slug: 'riverside', description: 'Serene stays by the Beas river', icon: 'Waves', count: 15 }
   ];
 
-  const defaultContent = [
-    { _id: 'c1', section: 'Hero', key: 'hero_title', value: 'Discover the World of Camping' },
-    { _id: 'c2', section: 'Hero', key: 'hero_subtitle', value: 'Your next adventure starts here' },
-    { _id: 'c3', section: 'About', key: 'about_title', value: 'About Camping Manali' },
+  const defaultCamps = [
+    {
+      title: "Solang Valley Riverside Retreat",
+      category: "riverside",
+      price: 2500,
+      rating: 4.8,
+      reviews: 124,
+      image: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&q=80",
+      location: "Solang Valley, Manali",
+      description: "Experience the magic of the Beas river right at your doorstep. Premium Swiss tents with attached baths.",
+      features: ["River View", "Bonfire", "Attached Bath", "Breakfast Included"],
+      available: true,
+      featured: true
+    },
+    {
+      title: "Hampta Pass Base Camp",
+      category: "adventure",
+      price: 1800,
+      rating: 4.9,
+      reviews: 86,
+      image: "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&q=80",
+      location: "Sethan Village, Manali",
+      description: "For the true adventurers. Located at the start of the Hampta Pass trek. Stunning views of Kullu Valley.",
+      features: ["Trekking Support", "Alpine Tents", "Local Food", "Snow Views"],
+      available: true,
+      featured: true
+    },
+    {
+      title: "Luxury Glamping Dome",
+      category: "luxury",
+      price: 5500,
+      rating: 5.0,
+      reviews: 42,
+      image: "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&q=80",
+      location: "Naggar, Manali",
+      description: "The ultimate glamping experience. Geodesic domes with transparent ceilings for stargazing.",
+      features: ["Stargazing", "Heated Tents", "Gourmet Meals", "WiFi"],
+      available: true,
+      featured: true
+    }
   ];
 
   const defaultBlogs = [
     {
-      _id: 'b1',
-      title: 'Ultimate Camping Guide 2024',
-      slug: 'ultimate-camping-guide-2024',
-      excerpt: 'Everything you need to know about camping in the Himalayas.',
-      content: 'Full content here...',
-      coverImage: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=600&q=80',
-      author: 'Admin',
-      category: 'Adventure',
-      tags: ['camping', 'guide'],
-      published: true,
-      views: 120,
-      createdAt: new Date().toISOString()
+      title: "The Ultimate Guide to Riverside Camping in Manali",
+      slug: "riverside-camping-guide",
+      category: "Adventure",
+      author: "Manali Expeditions",
+      date: "May 2024",
+      image: "https://images.unsplash.com/photo-1537225228614-56cc3556d7ed?auto=format&fit=crop&q=80",
+      excerpt: "Everything you need to know about setting up camp by the Beas River, from safety tips to the best spots.",
+      content: "Riverside camping in Manali is a dream for many. The sound of the Beas river, the cool breeze, and the majestic mountains make it a perfect escape. \n\nSetting up camp by the Beas river requires careful planning. First, you must ensure you are at a safe distance from the water line, as the river level can rise suddenly. \n\nThe best spots are usually in Old Manali or further up towards Solang Valley. Remember to pack warm layers, as the riverside temperature drops significantly at night. Always follow 'Leave No Trace' principles to keep our beautiful mountains clean.",
+      readTime: "8 min read",
+      featured: true
+    },
+    {
+      title: "Stargazing at 10,000 Feet: Why Beas Valley is a Camper's Paradise",
+      slug: "stargazing-beas-valley",
+      category: "Experience",
+      author: "Sky Watchers",
+      date: "April 2024",
+      image: "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&q=80",
+      excerpt: "Discover why Manali's high-altitude camps offer the clearest views of the Milky Way in Northern India.",
+      content: "When you climb above the clouds in Manali, the night sky transforms. Away from the light pollution of the town, the stars shine with a brilliance that is simply breathtaking.\n\nBeas Valley offers several high-altitude plateaus that are perfect for astrophotography. Whether you are at Hampta Pass or Bhrigu Lake base camp, the Milky Way is visible to the naked eye during the summer months. \n\nWe recommend bringing a high-quality telescope or a DSLR with a wide-angle lens. The best time for stargazing is during the new moon phase when the sky is at its darkest.",
+      readTime: "6 min read",
+      featured: true
+    },
+    {
+      title: "Top 5 Secret Trails in Manali for Solo Backpackers",
+      slug: "secret-trails-manali",
+      category: "Trekking",
+      author: "Solo Wanderer",
+      date: "March 2024",
+      image: "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&q=80",
+      excerpt: "Escape the crowds and explore these hidden paths that lead to pristine alpine meadows and waterfalls.",
+      content: "While Solang and Rohtang are famous, the true soul of Manali lies in its hidden trails. From the Jogini falls upper trek to the Dashaur lake path, there are plenty of secret routes to explore.\n\n1. The Jogini Upper Route: Most people stop at the waterfall, but the trail continues up to Vashisht Meadows.\n2. Lama Dugh: A steep climb from Old Manali that opens into a vast alpine meadow.\n3. Bijli Mahadev to Naggar: A scenic ridge walk with views of two valleys.\n4. Kothi to Gulaba via secret forest paths.\n5. The Old Silk Route trail above Manali town.\n\nAlways carry a map and enough water. These trails are less marked, so being prepared is key.",
+      readTime: "10 min read",
+      featured: false
     }
+  ];
+
+  const defaultContent = [
+    { section: 'Hero', key: 'hero_title', value: 'Discover the World of Camping' },
+    { section: 'Hero', key: 'hero_subtitle', value: 'Your next adventure starts here' },
+    { section: 'About', key: 'about_title', value: 'About Camping Manali' },
   ];
 
   const defaultBookings = [
@@ -627,94 +681,9 @@ const ContentSchema = new mongoose.Schema({
     {
       title: "Solang Valley Riverside Retreat",
       category: "riverside",
-      price: 2500,
-      rating: 4.8,
-      reviews: 124,
-      image: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&q=80",
-      location: "Solang Valley, Manali",
-      description: "Experience the magic of the Beas river right at your doorstep. Premium Swiss tents with attached baths.",
-      features: ["River View", "Bonfire", "Attached Bath", "Breakfast Included"],
-      available: true,
-      featured: true
-    },
-    {
-      title: "Hampta Pass Base Camp",
-      category: "adventure",
-      price: 1800,
-      rating: 4.9,
-      reviews: 86,
-      image: "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&q=80",
-      location: "Sethan Village, Manali",
-      description: "For the true adventurers. Located at the start of the Hampta Pass trek. Stunning views of Kullu Valley.",
-      features: ["Trekking Support", "Alpine Tents", "Local Food", "Snow Views"],
-      available: true,
-      featured: true
-    },
-    {
-      title: "Luxury Glamping Dome",
-      category: "luxury",
-      price: 5500,
-      rating: 5.0,
-      reviews: 42,
-      image: "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&q=80",
-      location: "Naggar, Manali",
-      description: "The ultimate glamping experience. Geodesic domes with transparent ceilings for stargazing.",
-      features: ["Stargazing", "Heated Tents", "Gourmet Meals", "WiFi"],
-      available: true,
-      featured: true
-    }
-  ];
-
-  const manaliBlogs = [
-    {
-      title: "The Ultimate Guide to Riverside Camping in Manali",
-      slug: "riverside-camping-guide",
-      category: "Adventure",
-      author: "Manali Expeditions",
-      date: "May 2024",
-      image: "https://images.unsplash.com/photo-1537225228614-56cc3556d7ed?auto=format&fit=crop&q=80",
-      excerpt: "Everything you need to know about setting up camp by the Beas River, from safety tips to the best spots.",
-      content: "Riverside camping in Manali is a dream for many. The sound of the Beas river, the cool breeze, and the majestic mountains make it a perfect escape. \n\nSetting up camp by the Beas river requires careful planning. First, you must ensure you are at a safe distance from the water line, as the river level can rise suddenly. \n\nThe best spots are usually in Old Manali or further up towards Solang Valley. Remember to pack warm layers, as the riverside temperature drops significantly at night. Always follow 'Leave No Trace' principles to keep our beautiful mountains clean.",
-      readTime: "8 min read",
-      featured: true
-    },
-    {
-      title: "Stargazing at 10,000 Feet: Why Beas Valley is a Camper's Paradise",
-      slug: "stargazing-beas-valley",
-      category: "Experience",
-      author: "Sky Watchers",
-      date: "April 2024",
-      image: "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&q=80",
-      excerpt: "Discover why Manali's high-altitude camps offer the clearest views of the Milky Way in Northern India.",
-      content: "When you climb above the clouds in Manali, the night sky transforms. Away from the light pollution of the town, the stars shine with a brilliance that is simply breathtaking.\n\nBeas Valley offers several high-altitude plateaus that are perfect for astrophotography. Whether you are at Hampta Pass or Bhrigu Lake base camp, the Milky Way is visible to the naked eye during the summer months. \n\nWe recommend bringing a high-quality telescope or a DSLR with a wide-angle lens. The best time for stargazing is during the new moon phase when the sky is at its darkest.",
-      readTime: "6 min read",
-      featured: true
-    },
-    {
-      title: "Top 5 Secret Trails in Manali for Solo Backpackers",
-      slug: "secret-trails-manali",
-      category: "Trekking",
-      author: "Solo Wanderer",
-      date: "March 2024",
-      image: "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&q=80",
-      excerpt: "Escape the crowds and explore these hidden paths that lead to pristine alpine meadows and waterfalls.",
-      content: "While Solang and Rohtang are famous, the true soul of Manali lies in its hidden trails. From the Jogini falls upper trek to the Dashaur lake path, there are plenty of secret routes to explore.\n\n1. The Jogini Upper Route: Most people stop at the waterfall, but the trail continues up to Vashisht Meadows.\n2. Lama Dugh: A steep climb from Old Manali that opens into a vast alpine meadow.\n3. Bijli Mahadev to Naggar: A scenic ridge walk with views of two valleys.\n4. Kothi to Gulaba via secret forest paths.\n5. The Old Silk Route trail above Manali town.\n\nAlways carry a map and enough water. These trails are less marked, so being prepared is key.",
-      readTime: "10 min read",
-      featured: false
-    }
-  ];
-
-  app.post('/api/seed-force', authenticateToken, async (req, res) => {
-    try {
-      if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'DB not connected' });
-      
-      await Camp.deleteMany({});
-      await Blog.deleteMany({});
-      await Category.deleteMany({});
-      
-      await Category.insertMany(manaliCategories);
-      await Camp.insertMany(manaliCamps);
-      await Blog.insertMany(manaliBlogs);
+      await Category.insertMany(defaultCategories);
+      await Camp.insertMany(defaultCamps);
+      await Blog.insertMany(defaultBlogs);
       
       res.json({ message: 'Database successfully seeded with Manali adventures! 🚀' });
     } catch (err) {
