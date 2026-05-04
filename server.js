@@ -47,6 +47,26 @@ app.get('/', (req, res) => {
   });
 });
 
+// ── Auth Middleware ───────────────────────────────────────────────────────────
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    console.log('❌ Auth failed: No token provided');
+    return res.status(401).json({ error: 'No token provided' });
+  }
+
+  jwt.verify(token, SECRET_KEY, (err, user) => {
+    if (err) {
+      console.log('❌ JWT Verification Error:', err.message);
+      return res.status(403).json({ error: 'Invalid or expired token' });
+    }
+    req.user = user;
+    next();
+  });
+};
+
 // Rate limiter for auth endpoint
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -267,27 +287,6 @@ const ContentSchema = new mongoose.Schema({
       console.error('Seed error:', err.message);
     }
   });
-
-  // ── Auth Middleware ───────────────────────────────────────────────────────────
-  const authenticateToken = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (!token) {
-      console.log('❌ Auth failed: No token provided');
-      return res.status(401).json({ error: 'No token provided' });
-    }
-
-    jwt.verify(token, SECRET_KEY, (err, user) => {
-      if (err) {
-        console.log('❌ JWT Verification Error:', err.message);
-        console.log('Using SECRET_KEY starting with:', SECRET_KEY.substring(0, 5) + '...');
-        return res.status(403).json({ error: 'Invalid or expired token' });
-      }
-      req.user = user;
-      next();
-    });
-  };
 
   // ── AUTH ──────────────────────────────────────────────────────────────────────
   app.post('/api/login', authLimiter, async (req, res) => {
