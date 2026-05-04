@@ -7,6 +7,14 @@ const bcrypt = require('bcryptjs');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 const fs = require('fs');
+const dns = require('dns');
+
+// Force Google DNS to bypass ISP blocking of MongoDB SRV records
+try {
+  dns.setServers(['8.8.8.8', '8.8.4.4']);
+} catch (e) {
+  console.log('⚠️ DNS override failed, using system default');
+}
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -103,7 +111,8 @@ let lastDbError = null;
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGODB_URI, {
-      serverSelectionTimeoutMS: 5000
+      serverSelectionTimeoutMS: 10000,
+      family: 4 // Force IPv4 to bypass DNS/IPv6 issues common on some ISPs
     });
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     lastDbError = null;
@@ -628,6 +637,112 @@ const ContentSchema = new mongoose.Schema({
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
+
+
+  const manaliCategories = [
+    { name: 'Luxury', slug: 'luxury', description: 'Premium camping with modern amenities', icon: 'Sparkles', count: 12 },
+    { name: 'Adventure', slug: 'adventure', description: 'High-altitude thrills and exploration', icon: 'Mountain', count: 8 },
+    { name: 'Riverside', slug: 'riverside', description: 'Serene stays by the Beas river', icon: 'Waves', count: 15 }
+  ];
+
+  const manaliCamps = [
+    {
+      title: "Solang Valley Riverside Retreat",
+      category: "riverside",
+      price: 2500,
+      rating: 4.8,
+      reviews: 124,
+      image: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&q=80",
+      location: "Solang Valley, Manali",
+      description: "Experience the magic of the Beas river right at your doorstep. Premium Swiss tents with attached baths.",
+      features: ["River View", "Bonfire", "Attached Bath", "Breakfast Included"],
+      available: true,
+      featured: true
+    },
+    {
+      title: "Hampta Pass Base Camp",
+      category: "adventure",
+      price: 1800,
+      rating: 4.9,
+      reviews: 86,
+      image: "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&q=80",
+      location: "Sethan Village, Manali",
+      description: "For the true adventurers. Located at the start of the Hampta Pass trek. Stunning views of Kullu Valley.",
+      features: ["Trekking Support", "Alpine Tents", "Local Food", "Snow Views"],
+      available: true,
+      featured: true
+    },
+    {
+      title: "Luxury Glamping Dome",
+      category: "luxury",
+      price: 5500,
+      rating: 5.0,
+      reviews: 42,
+      image: "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&q=80",
+      location: "Naggar, Manali",
+      description: "The ultimate glamping experience. Geodesic domes with transparent ceilings for stargazing.",
+      features: ["Stargazing", "Heated Tents", "Gourmet Meals", "WiFi"],
+      available: true,
+      featured: true
+    }
+  ];
+
+  const manaliBlogs = [
+    {
+      title: "The Ultimate Guide to Riverside Camping in Manali",
+      slug: "riverside-camping-guide",
+      category: "Adventure",
+      author: "Manali Expeditions",
+      date: "May 2024",
+      image: "https://images.unsplash.com/photo-1537225228614-56cc3556d7ed?auto=format&fit=crop&q=80",
+      excerpt: "Everything you need to know about setting up camp by the Beas River, from safety tips to the best spots.",
+      content: "Riverside camping in Manali is a dream for many. The sound of the Beas river, the cool breeze, and the majestic mountains make it a perfect escape. \n\nSetting up camp by the Beas river requires careful planning. First, you must ensure you are at a safe distance from the water line, as the river level can rise suddenly. \n\nThe best spots are usually in Old Manali or further up towards Solang Valley. Remember to pack warm layers, as the riverside temperature drops significantly at night. Always follow 'Leave No Trace' principles to keep our beautiful mountains clean.",
+      readTime: "8 min read",
+      featured: true
+    },
+    {
+      title: "Stargazing at 10,000 Feet: Why Beas Valley is a Camper's Paradise",
+      slug: "stargazing-beas-valley",
+      category: "Experience",
+      author: "Sky Watchers",
+      date: "April 2024",
+      image: "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&q=80",
+      excerpt: "Discover why Manali's high-altitude camps offer the clearest views of the Milky Way in Northern India.",
+      content: "When you climb above the clouds in Manali, the night sky transforms. Away from the light pollution of the town, the stars shine with a brilliance that is simply breathtaking.\n\nBeas Valley offers several high-altitude plateaus that are perfect for astrophotography. Whether you are at Hampta Pass or Bhrigu Lake base camp, the Milky Way is visible to the naked eye during the summer months. \n\nWe recommend bringing a high-quality telescope or a DSLR with a wide-angle lens. The best time for stargazing is during the new moon phase when the sky is at its darkest.",
+      readTime: "6 min read",
+      featured: true
+    },
+    {
+      title: "Top 5 Secret Trails in Manali for Solo Backpackers",
+      slug: "secret-trails-manali",
+      category: "Trekking",
+      author: "Solo Wanderer",
+      date: "March 2024",
+      image: "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&q=80",
+      excerpt: "Escape the crowds and explore these hidden paths that lead to pristine alpine meadows and waterfalls.",
+      content: "While Solang and Rohtang are famous, the true soul of Manali lies in its hidden trails. From the Jogini falls upper trek to the Dashaur lake path, there are plenty of secret routes to explore.\n\n1. The Jogini Upper Route: Most people stop at the waterfall, but the trail continues up to Vashisht Meadows.\n2. Lama Dugh: A steep climb from Old Manali that opens into a vast alpine meadow.\n3. Bijli Mahadev to Naggar: A scenic ridge walk with views of two valleys.\n4. Kothi to Gulaba via secret forest paths.\n5. The Old Silk Route trail above Manali town.\n\nAlways carry a map and enough water. These trails are less marked, so being prepared is key.",
+      readTime: "10 min read",
+      featured: false
+    }
+  ];
+
+  app.post('/api/seed-force', authenticateToken, async (req, res) => {
+    try {
+      if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'DB not connected' });
+      
+      await Camp.deleteMany({});
+      await Blog.deleteMany({});
+      await Category.deleteMany({});
+      
+      await Category.insertMany(manaliCategories);
+      await Camp.insertMany(manaliCamps);
+      await Blog.insertMany(manaliBlogs);
+      
+      res.json({ message: 'Database successfully seeded with Manali adventures! 🚀' });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
 
   // ── Error Handling ────────────────────────────────────────────────────────────
   app.use((req, res) => {
